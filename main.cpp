@@ -14,9 +14,9 @@ import <span>;
 import <array>;
 
 // ✅ FIXED: All header case sensitivity issues resolved
-#include <winsock2.h>     // ✅ FIXED: Changed from <WinSock2.h>
-#include <ws2tcpip.h>     // ✅ FIXED: Changed from <WS2tcpip.h>  
-#include <windows.h>      // ✅ FIXED: Changed from <Windows.h>
+#include <winsock2.h>     // NOT WinSock2.h
+#include <ws2tcpip.h>     // NOT WS2tcpip.h  
+#include <windows.h>      // NOT Windows.h
 #include <winhttp.h>
 #pragma comment(lib, "ws2_32.lib")
 #pragma comment(lib, "winhttp.lib")
