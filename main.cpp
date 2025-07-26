@@ -168,12 +168,13 @@ public:
  * @approach Fixed-size structure with enum class for packet type discrimination
  * @complexity Time: O(1) serialization, Space: O(1) per packet
  */
-struct NetworkPacket final {
-    enum class Type : std::uint8_t {
-        PlayerJoin = 1, PlayerLeave = 2, MatchmakingRequest = 3,
-        Heartbeat = 4, AdminCommand = 5, MatchUpdate = 6
-    } type{Type::Heartbeat};
-    
+enum class Type : std::uint8_t {
+    PlayerJoin = 1, PlayerLeave = 2, MatchmakingRequest = 3,
+    Heartbeat = 4, AdminCommand = 5, MatchUpdate = 6
+};
+Type type{Type::Heartbeat};
+// ↑ Now they're separate statements
+
    
     using enum Type;
     
@@ -346,8 +347,10 @@ struct IOCPContext final {
     std::array<char, config::MAX_PACKET_SIZE> buffer{};
     sockaddr_in clientAddr{};
     int clientAddrLen{sizeof(sockaddr_in)};
-    
-    enum class Operation : std::uint8_t { Receive, Send } operation{Operation::Receive};
+  enum class Operation : std::uint8_t { Receive, Send };
+Operation operation{Operation::Receive};
+// ↑ Now they're separate statements
+
     
     constexpr IOCPContext() noexcept {
         buffer.fill(0);
