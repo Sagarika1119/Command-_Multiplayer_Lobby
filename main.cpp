@@ -13,7 +13,6 @@ import <string>;
 import <span>;
 import <array>;
 
-// ✅ FIXED: All header case sensitivity issues resolved
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <windows.h>
@@ -175,7 +174,7 @@ struct NetworkPacket final {
         Heartbeat = 4, AdminCommand = 5, MatchUpdate = 6
     } type{Type::Heartbeat};
     
-    // ✅ FIXED: Using enum to reduce verbosity
+   
     using enum Type;
     
     std::uint32_t playerId{0};
@@ -375,7 +374,7 @@ enum class AdminRole : std::uint8_t {
     None = 0, Moderator = 1, Admin = 2, SuperAdmin = 3
 };
 
-// ✅ FIXED: Using enum to reduce verbosity
+
 using enum AdminRole;
 
 [[nodiscard]] constexpr bool hasPermission(AdminRole userRole, AdminRole requiredRole) noexcept {
@@ -521,7 +520,7 @@ private:
         const SOCKET listenSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
         if (listenSocket == INVALID_SOCKET) return;
         
-        // ✅ FIXED: Avoid nested designators by using separate assignments
+   
         sockaddr_in serverAddr{};
         serverAddr.sin_family = AF_INET;
         serverAddr.sin_port = htons(port_);
