@@ -1161,34 +1161,31 @@ private:
         networkManager_->returnContext(context);
     }
 
-void processPacket(const NetworkPacket& packet, const sockaddr_in& clientAddr) noexcept {
-    // ✅ FIXED: Early return instead of nested break statements
-    if (degradedMode_.load(std::memory_order_acquire)) {
-        if (packet.type != NetworkPacket::Heartbeat && 
-            packet.type != NetworkPacket::AdminCommand) {
-            return; // Early return instead of nested breaks
+    void processPacket(const NetworkPacket& packet, const sockaddr_in& clientAddr) noexcept {
+        if (degradedMode_.load(std::memory_order_acquire)) {
+            if (packet.type != NetworkPacket::Type::Heartbeat && 
+                packet.type != NetworkPacket::Type::AdminCommand) {
+                return;
+            }
+        }
+        
+        switch (packet.type) {
+            case NetworkPacket::Type::PlayerJoin:
+                handlePlayerJoin(packet, clientAddr);
+                break;
+            case NetworkPacket::Type::PlayerLeave:
+                playerManager_->removePlayer(packet.playerId);
+                break;
+            case NetworkPacket::Type::Heartbeat:
+                playerManager_->updateHeartbeat(packet.playerId);
+                break;
+            case NetworkPacket::Type::AdminCommand:
+                adminInterface_->processCommand(std::string{packet.getData()});
+                break;
+            default:
+                break;
         }
     }
-    
-    // ✅ FIXED: Now can use enum values directly due to using enum
-    switch (packet.type) {
-        case PlayerJoin:
-            handlePlayerJoin(packet, clientAddr);
-            break;
-        case PlayerLeave:
-            playerManager_->removePlayer(packet.playerId);
-            break;
-        case Heartbeat:
-            playerManager_->updateHeartbeat(packet.playerId);
-            break;
-        case AdminCommand:
-            adminInterface_->processCommand(std::string{packet.getData()});
-            break;
-        default:
-            break;
-    }
-}
-
 
     void handlePlayerJoin(const NetworkPacket& packet, const sockaddr_in& clientAddr) {
         const auto playerId = playerManager_->addPlayer(packet.getData(), clientAddr);
@@ -1258,30 +1255,25 @@ void processPacket(const NetworkPacket& packet, const sockaddr_in& clientAddr) n
         }
     }
 
-  void processAdminCommands() {
-    std::string input;
-    std::println("🏆 Tournament Lobby System Administrative Console");
-    
-    while (running_.load(std::memory_order_acquire)) {
-        std::print("tournament> ");
+    void processAdminCommands() {
+        std::string input;
+        std::println("🏆 Tournament Lobby System Administrative Console");
         
-        if (!std::getline(std::cin, input)) {
-            break; // Only one break level needed
+        while (running_.load(std::memory_order_acquire)) {
+            std::print("tournament> ");
+            
+            if (!std::getline(std::cin, input)) break;
+            if (input.empty()) continue;
+            
+            if (input == "shutdown") {
+                running_.store(false, std::memory_order_release);
+                break;
+            }
+            
+            adminInterface_->processCommand(input);
         }
-        
-        if (input.empty()) {
-            continue; // Use continue instead of nested structure
-        }
-        
-        if (input == "shutdown") {
-            running_.store(false, std::memory_order_release);
-            break; // Single break to exit loop
-        }
-        
-        adminInterface_->processCommand(input);
     }
-}
-
+};
 
 } // namespace tournament_lobby
 
