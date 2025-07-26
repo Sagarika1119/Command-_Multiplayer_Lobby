@@ -266,10 +266,10 @@ struct Match final {
     std::array<char, 64> mapName{};
     std::chrono::steady_clock::time_point createdAt{};
     
-    enum class Status : std::uint8_t { 
-        Waiting, Active, Completed 
-    } status{Status::Waiting};
-
+  enum class Status : std::uint8_t { 
+    Waiting, Active, Completed 
+};
+Status status{Status::Waiting};
     constexpr Match() noexcept {
         gameMode.fill(0);
         mapName.fill(0);
